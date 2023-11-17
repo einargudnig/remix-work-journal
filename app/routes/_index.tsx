@@ -1,21 +1,29 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { PrismaClient } from "@prisma/client";
+import { format } from "date-fns";
+import { useEffect, useRef } from "react";
 
 
 export async function action({ request }: ActionFunctionArgs) {
   let db = new PrismaClient()
   
   const formData = await request.formData()
-  let json = Object.fromEntries(formData)
-  console.log('form data', json)
+  let { date, type, text } = Object.fromEntries(formData)
+
+  // to make the pending ui a bit better
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  
+  if (typeof date !== 'string' || typeof type !== 'string' || typeof text !== 'string') {
+    throw new Error('Invalid form data')
+  }
 
   await db.entry.create({
     data: {
-      date: new Date('2023-11-12'),
-      type: 'work',
-      text: 'text'
+      date: new Date(date),
+      type: type,
+      text: text,
     }
   })
 
@@ -23,6 +31,16 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Index() {
+  const fetcher = useFetcher()
+  const textareRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => { 
+    if (fetcher.state === 'idle' && textareRef.current) {
+      textareRef.current.value = ''
+      textareRef.current.focus()
+    }
+  }, [fetcher.state])
+
   return (
     <div className="mx-auto max-w-7xl p-6">
       <h1 className="text-4xl text-white">Work journal</h1>
@@ -31,40 +49,52 @@ export default function Index() {
       </p>
 
       <div className="my-8 border p-3">
-        <Form method="post">
-          <p className="italic">Create an entry</p>
-
-          <div className="mt-4">
+        <p className="italic">Create an entry</p>
+        <fetcher.Form method="post" className="mt-2">
+          <fieldset className="disabled:opacity-60" disabled={fetcher.state === 'submitting'}>
+          <div>
             <div>
-              <input type="date" name="date" className="text-gray-700" />
+              <input
+                type="date"
+                name="date"
+                required
+                  className="text-gray-900"
+                  defaultValue={format(new Date(), 'yyyy-MM-dd')}
+              />
             </div>
 
-            <div className="mt-2 space-x-6">
-              <label>
-                <input className="mr-1" type="radio" name="category" value="work" />
+            <div className="mt-4 space-x-4">
+              <label className="inline-block">
+                <input defaultChecked required className="mr-1" type="radio" name="type" value="work" />
                 Work
               </label>
-              <label>
-                <input className="mr-1" type="radio" name="category" value="learning" />
+              <label className="inline-block">
+                <input className="mr-1" type="radio" name="type" value="learning" />
                 Learnings
               </label>
-              <label>
-                <input className="mr-1" type="radio" name="category" value="interesting-thing" />
+              <label className="inline-block">
+                <input className="mr-1" type="radio" name="type" value="interesting-thing" />
                 Interesting thing
               </label>
             </div>
 
-            <div className="mt-2">
-              <textarea name="text" className="w-full text-gray-700" placeholder="Write your entry..." />
+            <div className="mt-4">
+                <textarea
+                ref={textareRef}
+                name="text"
+                required
+                className="w-full text-gray-900"
+                placeholder="Write your entry..." />
             </div>
 
-            <div className="mt-1 text-right">
-              <button type="submit" className="bg-blue-500 px-4 py-1 font-medium text-white">
-                Save
-              </button>            
+              <div className="mt-2 text-right">
+                <button type="submit" className="bg-blue-500 px-4 py-1 font-medium text-white">
+                  {fetcher.state === "submitting" ? "Saving..." : "Save"}
+                </button>            
+              </div>
             </div>
-          </div>
-        </Form>
+            </fieldset>
+        </fetcher.Form>
       </div>
 
       <div className="mt-8">
