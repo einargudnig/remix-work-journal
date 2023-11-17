@@ -1,11 +1,23 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { Form } from "@remix-run/react";
+import { PrismaClient } from "@prisma/client";
+
 
 export async function action({ request }: ActionFunctionArgs) {
+  let db = new PrismaClient()
+  
   const formData = await request.formData()
   let json = Object.fromEntries(formData)
   console.log('form data', json)
+
+  await db.entry.create({
+    data: {
+      date: new Date('2023-11-12'),
+      type: 'work',
+      text: 'text'
+    }
+  })
 
   return redirect('/')
 }
