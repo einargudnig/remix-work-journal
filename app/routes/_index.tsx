@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { PrismaClient } from "@prisma/client";
 import { format } from "date-fns";
@@ -19,15 +18,13 @@ export async function action({ request }: ActionFunctionArgs) {
     throw new Error('Invalid form data')
   }
 
-  await db.entry.create({
+  return db.entry.create({
     data: {
       date: new Date(date),
       type: type,
       text: text,
     }
   })
-
-  return redirect('/')
 }
 
 export default function Index() {
