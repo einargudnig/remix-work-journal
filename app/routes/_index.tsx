@@ -1,8 +1,9 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { PrismaClient } from "@prisma/client";
 import { format, parseISO, startOfWeek } from "date-fns";
 import { useEffect, useRef } from "react";
+import { EditListItem } from "~/components/EditListItem";
 
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -73,11 +74,7 @@ export default function Index() {
 
   return (
     <div className="mx-auto max-w-7xl p-6">
-      <h1 className="text-4xl text-white">Work journal</h1>
-      <p className="mt-3 text-xl text-gray-400">
-        Doings and learnings. Updated weekly.
-      </p>
-
+  
       <div className="my-8 border p-3">
         <p className="italic">Create an entry</p>
         <fetcher.Form method="post" className="mt-2">
@@ -144,7 +141,7 @@ export default function Index() {
                       {week.work.map(entry => (
                         <li key={entry.id} className="group">
                           {entry.text}
-                          <Link to={`/entries/${entry.id}/edit`} className="ml-2 text-blue-500 opacity-0 group-hover:opacity-100">Edit</Link>
+                          <EditListItem entryId={entry.id} />
                         </li>
                       ))}
                       
@@ -158,7 +155,7 @@ export default function Index() {
                       {week.learnings.map(entry => (
                         <li key={entry.id} className="group">
                           {entry.text}
-                          <Link to={`/entries/${entry.id}/edit`} className="ml-2 text-blue-500 opacity-0 group-hover:opacity-100">Edit</Link>
+                          <EditListItem entryId={entry.id} />
                         </li>
                       ))}
                       
@@ -172,7 +169,7 @@ export default function Index() {
                       {week.interestingThings.map(entry => (
                         <li key={entry.id} className="group">
                           {entry.text}
-                          <Link to={`/entries/${entry.id}/edit`} className="ml-2 text-blue-500 opacity-0 group-hover:opacity-100">Edit</Link>
+                          <EditListItem entryId={entry.id} />
                         </li>
                       ))}
                       

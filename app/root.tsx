@@ -23,7 +23,14 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <div className="p-10">
+          <h1 className="text-4xl text-white">Work journal</h1>
+          <p className="mt-3 text-xl text-gray-400">
+            Doings and learnings. Updated weekly.
+          </p>
         <Outlet />
+        </div>
+        
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
