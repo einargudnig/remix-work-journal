@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { PrismaClient } from "@prisma/client";
-import { format } from "date-fns";
+import { format, parseISO, startOfWeek } from "date-fns";
 import { useEffect, useRef } from "react";
 
 
@@ -27,9 +27,42 @@ export async function action({ request }: ActionFunctionArgs) {
   })
 }
 
+export async function loader() {
+  let db = new PrismaClient()
+
+  let entries = await db.entry.findMany()
+  
+  return entries.map((entry) => ({
+    ...entry,
+    date: entry.date.toISOString().substring(0, 10),
+  }))
+
+}
+
 export default function Index() {
   const fetcher = useFetcher()
   const textareRef = useRef<HTMLTextAreaElement>(null)
+  const entries = useLoaderData<typeof loader>()
+  
+  const entriesByWeek = entries.reduce<Record<string, typeof entries>>((memo, entry) => {
+    let sunday = startOfWeek(parseISO(entry.date))
+    let sundayString = format(sunday, 'yyyy-MM-dd')
+
+    memo[sundayString] ||= []
+    memo[sundayString].push(entry)
+
+    return memo
+    
+  }, {})
+
+  const weeks = Object.keys(entriesByWeek)
+  .sort((a, b) => a.localeCompare(b))
+    .map(dateString => ({
+      dateString,
+      work: entriesByWeek[dateString].filter(entry => entry.type === 'work'),
+      learnings: entriesByWeek[dateString].filter(entry => entry.type === 'learning'),
+      interestingThings: entriesByWeek[dateString].filter(entry => entry.type === 'interesting-thing'),
+  }))
 
   useEffect(() => { 
     if (fetcher.state === 'idle' && textareRef.current) {
@@ -55,8 +88,8 @@ export default function Index() {
                 type="date"
                 name="date"
                 required
-                  className="text-gray-900"
-                  defaultValue={format(new Date(), 'yyyy-MM-dd')}
+                className="text-gray-900"
+                defaultValue={format(new Date(), 'yyyy-MM-dd')}
               />
             </div>
 
@@ -94,36 +127,54 @@ export default function Index() {
         </fetcher.Form>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-12 space-y-12">
+      {weeks.map((week) => (
+        <div key={week.dateString}>
         <ul>
           <li>
             <p>
-              Week of Feb 2<sup>nd</sup>, 2023
+              Week of {format(parseISO(week.dateString), 'MMMM do, yyyy')} 
             </p>
 
-            <div className="mt-4 space-y-4">
-              <div>
-                <p>Work:</p>
-                <ul className="ml-6 list-disc">
-                  <li>First thing</li>
-                </ul>
-              </div>
-              <div>
-                <p>Learnings:</p>
-                <ul className="ml-6 list-disc">
-                  <li>First learning</li>
-                  <li>Second learning</li>
-                </ul>
-              </div>
-              <div>
-                <p>Interesting things:</p>
-                <ul className="ml-6 list-disc">
-                  <li>Something cool!</li>
-                </ul>
-              </div>
-            </div>
+             <div className="mt-4 space-y-4">
+                {week.work.length > 0 && (
+                  <div>
+                    <p>Work</p>
+                    <ul className="ml-6 list-disc">
+                      {week.work.map(entry => (
+                        <li key={entry.id}>{entry.text}</li>
+                      ))}
+                      
+                    </ul>
+                  </div>
+                )}
+                {week.learnings.length > 0 && (
+                  <div>
+                    <p>Learning</p>
+                    <ul className="ml-6 list-disc">
+                      {week.learnings.map(entry => (
+                        <li key={entry.id}>{entry.text}</li>
+                      ))}
+                      
+                    </ul>
+                  </div>
+                )}
+                {week.interestingThings.length > 0 && (
+                  <div>
+                    <p>Interesting things</p>
+                    <ul className="ml-6 list-disc">
+                      {week.interestingThings.map(entry => (
+                        <li key={entry.id}>{entry.text}</li>
+                      ))}
+                      
+                    </ul>
+                  </div>
+                )}
+            </div> 
           </li>
         </ul>
+        </div>
+      ))}
       </div>
     </div>
   );
