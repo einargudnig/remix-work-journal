@@ -3,7 +3,8 @@ import { useFetcher, useLoaderData } from "@remix-run/react";
 import { PrismaClient } from "@prisma/client";
 import { format, parseISO, startOfWeek } from "date-fns";
 import { useEffect, useRef } from "react";
-import { EditListItem } from "~/components/EditListItem";
+import { EditListItem } from "~/components/edit-list-item";
+import { EntryForm } from "~/components/entry-form";
 
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -65,19 +66,11 @@ export default function Index() {
       interestingThings: entriesByWeek[dateString].filter(entry => entry.type === 'interesting-thing'),
   }))
 
-  useEffect(() => { 
-    if (fetcher.state === 'idle' && textareRef.current) {
-      textareRef.current.value = ''
-      textareRef.current.focus()
-    }
-  }, [fetcher.state])
-
   return (
     <div className="mx-auto max-w-7xl p-6">
-  
-      <div className="my-8 border p-3">
+
         <p className="italic">Create an entry</p>
-        <fetcher.Form method="post" className="mt-2">
+        {/* <fetcher.Form method="post" className="mt-2">
           <fieldset className="disabled:opacity-60" disabled={fetcher.state === 'submitting'}>
           <div>
             <div>
@@ -121,8 +114,9 @@ export default function Index() {
               </div>
             </div>
             </fieldset>
-        </fetcher.Form>
-      </div>
+        </fetcher.Form> */}
+        <EntryForm />
+
 
       <div className="mt-12 space-y-12">
       {weeks.map((week) => (
