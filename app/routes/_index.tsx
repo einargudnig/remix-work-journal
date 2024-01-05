@@ -1,23 +1,32 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { useFetcher, useLoaderData } from "@remix-run/react";
 import { PrismaClient } from "@prisma/client";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { format, parseISO, startOfWeek } from "date-fns";
-import { useEffect, useRef } from "react";
-import { EditListItem } from "~/components/edit-list-item";
 import { EntryForm } from "~/components/entry-form";
-
+import { getSession } from "~/session";
 
 export async function action({ request }: ActionFunctionArgs) {
-  let db = new PrismaClient()
-  
-  const formData = await request.formData()
-  let { date, type, text } = Object.fromEntries(formData)
+  let session = await getSession(request.headers.get("cookie"));
+  if (!session.data.isAdmin) {
+    throw new Response("Not authenticated", {
+      status: 401,
+      statusText: "Not authenticated",
+    });
+  }
 
-  // to make the pending ui a bit better
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  if (typeof date !== 'string' || typeof type !== 'string' || typeof text !== 'string') {
-    throw new Error('Invalid form data')
+  let db = new PrismaClient();
+
+  let formData = await request.formData();
+  let { date, type, text } = Object.fromEntries(formData);
+
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  if (
+    typeof date !== "string" ||
+    typeof type !== "string" ||
+    typeof text !== "string"
+  ) {
+    throw new Error("Bad request");
   }
 
   return db.entry.create({
@@ -25,157 +34,129 @@ export async function action({ request }: ActionFunctionArgs) {
       date: new Date(date),
       type: type,
       text: text,
-    }
-  })
+    },
+  });
 }
 
-export async function loader() {
-  let db = new PrismaClient()
+export async function loader({ request }: LoaderFunctionArgs) {
+  let session = await getSession(request.headers.get("cookie"));
 
-  let entries = await db.entry.findMany()
-  
-  return entries.map((entry) => ({
-    ...entry,
-    date: entry.date.toISOString().substring(0, 10),
-  }))
+  let db = new PrismaClient();
+  let entries = await db.entry.findMany();
 
+  return {
+    session: session.data,
+    entries: entries.map((entry) => ({
+      ...entry,
+      date: entry.date.toISOString().substring(0, 10),
+    })),
+  };
 }
 
 export default function Index() {
-  const fetcher = useFetcher()
-  const textareRef = useRef<HTMLTextAreaElement>(null)
-  const entries = useLoaderData<typeof loader>()
-  
-  const entriesByWeek = entries.reduce<Record<string, typeof entries>>((memo, entry) => {
-    let sunday = startOfWeek(parseISO(entry.date))
-    let sundayString = format(sunday, 'yyyy-MM-dd')
+  let { session, entries } = useLoaderData<typeof loader>();
 
-    memo[sundayString] ||= []
-    memo[sundayString].push(entry)
+  let entriesByWeek = entries.reduce<Record<string, typeof entries>>(
+    (memo, entry) => {
+      let sunday = startOfWeek(parseISO(entry.date));
+      let sundayString = format(sunday, "yyyy-MM-dd");
 
-    return memo
-    
-  }, {})
+      memo[sundayString] ||= [];
+      memo[sundayString].push(entry);
 
-  const weeks = Object.keys(entriesByWeek)
-  .sort((a, b) => a.localeCompare(b))
-    .map(dateString => ({
+      return memo;
+    },
+    {}
+  );
+
+  let weeks = Object.keys(entriesByWeek)
+    .sort((a, b) => a.localeCompare(b))
+    .map((dateString) => ({
       dateString,
-      work: entriesByWeek[dateString].filter(entry => entry.type === 'work'),
-      learnings: entriesByWeek[dateString].filter(entry => entry.type === 'learning'),
-      interestingThings: entriesByWeek[dateString].filter(entry => entry.type === 'interesting-thing'),
-  }))
+      work: entriesByWeek[dateString].filter((entry) => entry.type === "work"),
+      learnings: entriesByWeek[dateString].filter(
+        (entry) => entry.type === "learning"
+      ),
+      interestingThings: entriesByWeek[dateString].filter(
+        (entry) => entry.type === "interesting-thing"
+      ),
+    }));
 
   return (
-    <div className="mx-auto max-w-7xl p-6">
+    <div>
+      {session.isAdmin && (
+        <div className="my-8 p-3">
+          <p className="italic">Create a new entry</p>
 
-        <p className="italic">Create an entry</p>
-        {/* <fetcher.Form method="post" className="mt-2">
-          <fieldset className="disabled:opacity-60" disabled={fetcher.state === 'submitting'}>
-          <div>
-            <div>
-              <input
-                type="date"
-                name="date"
-                required
-                className="text-gray-900"
-                defaultValue={format(new Date(), 'yyyy-MM-dd')}
-              />
-            </div>
-
-            <div className="mt-4 space-x-4">
-              <label className="inline-block">
-                <input defaultChecked required className="mr-1" type="radio" name="type" value="work" />
-                Work
-              </label>
-              <label className="inline-block">
-                <input className="mr-1" type="radio" name="type" value="learning" />
-                Learnings
-              </label>
-              <label className="inline-block">
-                <input className="mr-1" type="radio" name="type" value="interesting-thing" />
-                Interesting thing
-              </label>
-            </div>
-
-            <div className="mt-4">
-                <textarea
-                ref={textareRef}
-                name="text"
-                required
-                className="w-full text-gray-900"
-                placeholder="Write your entry..." />
-            </div>
-
-              <div className="mt-2 text-right">
-                <button type="submit" className="bg-blue-500 px-4 py-1 font-medium text-white">
-                  {fetcher.state === "submitting" ? "Saving..." : "Save"}
-                </button>            
-              </div>
-            </div>
-            </fieldset>
-        </fetcher.Form> */}
-        <EntryForm />
-
+          <EntryForm />
+        </div>
+      )}
 
       <div className="mt-12 space-y-12">
-      {weeks.map((week) => (
-        <div key={week.dateString}>
-        <ul>
-          <li>
-            <p>
-              Week of {format(parseISO(week.dateString), 'MMMM do, yyyy')} 
+        {weeks.map((week) => (
+          <div key={week.dateString}>
+            <p className="font-bold">
+              Week of {format(parseISO(week.dateString), "MMMM do")}
             </p>
-
-             <div className="mt-4 space-y-4">
-                {week.work.length > 0 && (
-                  <div>
-                    <p>Work</p>
-                    <ul className="ml-6 list-disc">
-                      {week.work.map(entry => (
-                        <li key={entry.id} className="group">
-                          {entry.text}
-                          <EditListItem entryId={entry.id} />
-                        </li>
-                      ))}
-                      
-                    </ul>
-                  </div>
-                )}
-                {week.learnings.length > 0 && (
-                  <div>
-                    <p>Learning</p>
-                    <ul className="ml-6 list-disc">
-                      {week.learnings.map(entry => (
-                        <li key={entry.id} className="group">
-                          {entry.text}
-                          <EditListItem entryId={entry.id} />
-                        </li>
-                      ))}
-                      
-                    </ul>
-                  </div>
-                )}
-                {week.interestingThings.length > 0 && (
-                  <div>
-                    <p>Interesting things</p>
-                    <ul className="ml-6 list-disc">
-                      {week.interestingThings.map(entry => (
-                        <li key={entry.id} className="group">
-                          {entry.text}
-                          <EditListItem entryId={entry.id} />
-                        </li>
-                      ))}
-                      
-                    </ul>
-                  </div>
-                )}
-            </div> 
-          </li>
-        </ul>
-        </div>
-      ))}
+            <div className="mt-3 space-y-4">
+              {week.work.length > 0 && (
+                <div>
+                  <p>Work</p>
+                  <ul className="ml-8 list-disc">
+                    {week.work.map((entry) => (
+                      <EntryListItem key={entry.id} entry={entry} canEdit={session.isAdmin} />
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {week.learnings.length > 0 && (
+                <div>
+                  <p>Learning</p>
+                  <ul className="ml-8 list-disc">
+                    {week.learnings.map((entry) => (
+                      <EntryListItem key={entry.id} entry={entry} canEdit={session.isAdmin} />
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {week.interestingThings.length > 0 && (
+                <div>
+                  <p>Interesting things</p>
+                  <ul className="ml-8 list-disc">
+                    {week.interestingThings.map((entry) => (
+                      <EntryListItem key={entry.id} entry={entry} canEdit={session.isAdmin} />
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
+  );
+}
+
+function EntryListItem({
+  entry,
+  canEdit
+}: {
+    entry: Awaited<ReturnType<typeof loader>>["entries"][number];
+    canEdit: boolean;
+}) {
+  return (
+    <li className="group">
+      {entry.text}
+
+      {canEdit && (
+        <Link
+        to={`/entries/${entry.id}/edit`}
+        className="ml-2 text-blue-500 opacity-0 group-hover:opacity-100"
+      >
+        Edit
+      </Link>
+      )}
+      
+    </li>
   );
 }

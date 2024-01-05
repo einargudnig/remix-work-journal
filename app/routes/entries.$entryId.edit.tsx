@@ -3,8 +3,14 @@ import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@rem
 import { Form, useLoaderData } from "@remix-run/react"
 import type { FormEvent } from "react";
 import { EntryForm } from "~/components/entry-form"
+import { getSession } from "~/session";
 
 export async function action({ request, params }: ActionFunctionArgs) {
+  let session = await getSession(request.headers.get("cookie"));
+  if (!session.data.isAdmin) {
+    throw new Response("Not authenticated", { status: 401 });
+  }
+  
   if (typeof params.entryId !== "string") {
     throw new Response("Not found", { status: 404 });
   }
@@ -49,7 +55,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
    if (typeof params.entryId !== "string") {
     throw new Response("Not found", { status: 404 });
   }
@@ -59,6 +65,11 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   if (!entry) {
     throw new Response("Not found", { status: 404 });
+  }
+
+  let session = await getSession(request.headers.get("cookie"));
+  if (!session.data.isAdmin) {
+    throw new Response("Not authenticated", { status: 401 });
   }
   
   return {
