@@ -15,9 +15,12 @@ import {
   useRouteError,
 } from "@remix-run/react";
 import { destroySession, getSession } from "./session";
+import { ThemeProvider } from "./components/theme-provider";
+import { DarkModeToggle } from "./components/theme-toggle";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
+  { rel: "stylesheet", href: "fonts/web/inter.css" },
 ];
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -48,25 +51,27 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <div className="p-10">
           <div className="flex justify-between items-start">
             <div>
-            <h1 className="text-4xl text-white">Work journal</h1>
-            <p className="mt-3 text-xl text-gray-400">
-              Doings and learnings. Updated weekly.
+              <h1 className="text-4xl text-white">Work journal</h1>
+              <p className="mt-3 text-xl text-gray-400">
+                 Doings and learnings. Updated weekly.
               </p>
-              </div>
+            </div>
            {session.isAdmin ? (
               <Form method="post">
                 <button>Logout</button>
               </Form>
             ) : (
               <Link to="/login">Login</Link>
-            )}
+              )}
+            <DarkModeToggle />
           </div>
         <Outlet />
         </div>
-        
+        </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

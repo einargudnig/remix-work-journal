@@ -1,6 +1,7 @@
 import { useFetcher } from "@remix-run/react";
 import { format } from "date-fns";
 import { useEffect, useRef } from "react";
+import { Button } from "./ui/button";
 
 export function EntryForm({
   entry,
@@ -68,12 +69,13 @@ export function EntryForm({
           />
         </div>
         <div className="mt-2 text-right">
-          <button
+          {/* <button
             type="submit"
             className="bg-blue-500 px-4 py-1 font-semibold text-white"
           >
             {fetcher.state !== "idle" ? "Saving..." : "Save"}
-          </button>
+            </button> */}
+            <Button type="submit">{fetcher.state !== "idle" ? "Saving..." : "Save"}</Button>
         </div>
       </fieldset>
       </fetcher.Form>
