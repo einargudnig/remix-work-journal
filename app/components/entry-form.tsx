@@ -1,6 +1,11 @@
 import { useFetcher } from "@remix-run/react";
 import { format } from "date-fns";
 import { useEffect, useRef } from "react";
+import { Textarea } from "./ui/textarea"
+import { Label } from "./ui/label"
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
+
+
 import { Button } from "./ui/button";
 
 export function EntryForm({
@@ -37,10 +42,12 @@ export function EntryForm({
               required
               className="text-gray-900"
               defaultValue={entry?.date ?? format(new Date(), "yyyy-MM-dd")}
-            />
+              />
+              
+              {/* <DatePicker default={entry?.date ?? format(new Date(), "yyyy-MM-dd")} /> */}
           </div>
           <div className="mt-4 space-x-4">
-            {[
+            {/* {[
                 { label: "Work", value: "work" },
                 { label: "Learning", value: "learning" },
                 { label: "Interesting thing", value: "interesting thing" },
@@ -55,18 +62,39 @@ export function EntryForm({
                   />
                   {option.label}
                 </label>
-              ))}
+              ))} */}
+              <RadioGroup defaultValue={entry?.type ?? "work"}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="work" id="work" />
+                <Label htmlFor="work">Work</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="learning" id="learning" />
+                <Label htmlFor="learning">Learning</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="interesting-thing" id="interesting-thing" />
+                <Label htmlFor="interesting-thing">Interesting Thing</Label>
+              </div>
+            </RadioGroup>
           </div>
         </div>
         <div className="mt-4">
-          <textarea
+          {/* <textarea
             ref={textareaRef}
             placeholder="Type your entry..."
             name="text"
             className="w-full text-gray-700"
             required
             defaultValue={entry?.text}
-          />
+          /> */}
+            <Textarea
+              ref={textareaRef}
+              placeholder="Type your entry..."
+              name="text"
+              required
+              defaultValue={entry?.text}
+            />
         </div>
         <div className="mt-2 text-right">
           {/* <button

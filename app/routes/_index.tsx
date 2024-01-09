@@ -17,6 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
   let db = new PrismaClient();
 
   let formData = await request.formData();
+  console.log(formData);
   let { date, type, text } = Object.fromEntries(formData);
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -29,13 +30,13 @@ export async function action({ request }: ActionFunctionArgs) {
     throw new Error("Bad request");
   }
 
-  return db.entry.create({
-    data: {
-      date: new Date(date),
-      type: type,
-      text: text,
-    },
-  });
+  // return db.entry.create({
+  //   data: {
+  //     date: new Date(date),
+  //     type: type,
+  //     text: text,
+  //   },
+  // });
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {

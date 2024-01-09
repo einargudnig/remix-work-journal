@@ -17,6 +17,7 @@ import {
 import { destroySession, getSession } from "./session";
 import { ThemeProvider } from "./components/theme-provider";
 import { DarkModeToggle } from "./components/theme-toggle";
+import { Button } from "./components/ui/button";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -60,14 +61,16 @@ export default function App() {
                  Doings and learnings. Updated weekly.
               </p>
             </div>
-           {session.isAdmin ? (
-              <Form method="post">
-                <button>Logout</button>
-              </Form>
-            ) : (
-              <Link to="/login">Login</Link>
+            <div className="flex justify-center items-center space-x-3">
+              {session.isAdmin ? (
+                <Form method="post">
+                  <Button>Logout</Button>
+                </Form>
+              ) : (
+                <Link to="/login">Login</Link>
               )}
-            <DarkModeToggle />
+              <DarkModeToggle />
+            </div>
           </div>
         <Outlet />
         </div>
