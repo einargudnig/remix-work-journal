@@ -56,9 +56,9 @@ export default function App() {
         <div className="p-10">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-4xl text-white">Work journal</h1>
+              <h1 className="text-4xl text-white">work journal</h1>
               <p className="mt-3 text-xl text-gray-400">
-                 Doings and learnings. Updated weekly.
+                 Doings and learnings.
               </p>
             </div>
             <div className="flex justify-center items-center space-x-3">

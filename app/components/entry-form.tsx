@@ -50,7 +50,7 @@ export function EntryForm({
             {/* {[
                 { label: "Work", value: "work" },
                 { label: "Learning", value: "learning" },
-                { label: "Interesting thing", value: "interesting thing" },
+                { label: "Interesting thing", value: "interesting-thing" },
               ].map((option) => (
                 <label key={option.value} className="inline-block">
                   <input
@@ -63,9 +63,9 @@ export function EntryForm({
                   {option.label}
                 </label>
               ))} */}
-              <RadioGroup defaultValue={entry?.type ?? "work"}>
+              <RadioGroup defaultValue={entry?.type ?? "work"} name="type">
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="work" id="work" />
+                <RadioGroupItem value="work" id="work"  />
                 <Label htmlFor="work">Work</Label>
               </div>
               <div className="flex items-center space-x-2">
