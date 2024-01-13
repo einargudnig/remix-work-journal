@@ -3,6 +3,7 @@ import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@rem
 import { Form, useLoaderData } from "@remix-run/react"
 import type { FormEvent } from "react";
 import { EntryForm } from "~/components/entry-form"
+import { Button } from "~/components/ui/button";
 import { getSession } from "~/session";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -97,7 +98,7 @@ export default function EditPage() {
       <EntryForm entry={entry} />
       <div>
         <Form method="post" onSubmit={handleSubmit}>
-          <button name="_action" value="delete" className="p-1 border rounded-md">Delete this entry</button>
+          <Button name="_action" value="delete" type="submit" variant="outline">Delete entry</Button>
         </Form>
       </div>
     </div>

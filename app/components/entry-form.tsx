@@ -1,9 +1,18 @@
+import { useEffect, useRef } from "react";
 import { useFetcher } from "@remix-run/react";
 import { format } from "date-fns";
-import { useEffect, useRef } from "react";
 import { Textarea } from "./ui/textarea"
 import { Label } from "./ui/label"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
+import { Input } from "./ui/input"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "./ui/card";
 
 
 import { Button } from "./ui/button";
@@ -11,7 +20,7 @@ import { Button } from "./ui/button";
 export function EntryForm({
   entry,
 }: {
-  entry?: { text: string; date: string; type: string };
+  entry?: { text: string; date: string; type: string, link?: string };
 }) {
   let fetcher = useFetcher();
   let textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -28,41 +37,30 @@ export function EntryForm({
   }, [fetcher.state, fetcher.type]);
 
   return (
-    <div className="my-8 border p-3">
-    <fetcher.Form method="post" className="mt-2">
+    <Card>
+      <CardHeader>
+        <CardTitle>Add a new entry</CardTitle>
+        <CardDescription>
+          Add a new entry to your journal.
+        </CardDescription> 
+      </CardHeader>
+    <fetcher.Form method="post" className="p-2">
       <fieldset
         className="disabled:opacity-70"
         disabled={fetcher.state !== "idle"}
-      >
+        >
+        <CardContent>
         <div>
           <div>
             <input
               type="date"
               name="date"
               required
-              className="text-gray-900"
+              className=""
               defaultValue={entry?.date ?? format(new Date(), "yyyy-MM-dd")}
-              />
-              
-              {/* <DatePicker default={entry?.date ?? format(new Date(), "yyyy-MM-dd")} /> */}
+            /> 
           </div>
           <div className="mt-4 space-x-4">
-            {/* {[
-                { label: "Work", value: "work" },
-                { label: "Learning", value: "learning" },
-                { label: "Interesting thing", value: "interesting-thing" },
-              ].map((option) => (
-                <label key={option.value} className="inline-block">
-                  <input
-                    type="radio"
-                    className="mr-1"
-                    name="type"
-                    value={option.value}
-                    defaultChecked={option.value === (entry?.type ?? "work")}
-                  />
-                  {option.label}
-                </label>
-              ))} */}
               <RadioGroup defaultValue={entry?.type ?? "work"} name="type">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="work" id="work"  />
@@ -79,15 +77,7 @@ export function EntryForm({
             </RadioGroup>
           </div>
         </div>
-        <div className="mt-4">
-          {/* <textarea
-            ref={textareaRef}
-            placeholder="Type your entry..."
-            name="text"
-            className="w-full text-gray-700"
-            required
-            defaultValue={entry?.text}
-          /> */}
+          <div className="mt-4">
             <Textarea
               ref={textareaRef}
               placeholder="Type your entry..."
@@ -95,18 +85,19 @@ export function EntryForm({
               required
               defaultValue={entry?.text}
             />
-        </div>
+          </div>
+          <div className="my-4">
+            <Label className="mb-1" htmlFor="work">Add link to your entry</Label>
+            <Input name="link" placeholder="Add link.." defaultValue={entry?.text}/>
+            </div>
+        </CardContent>
+            <CardFooter>
         <div className="mt-2 text-right">
-          {/* <button
-            type="submit"
-            className="bg-blue-500 px-4 py-1 font-semibold text-white"
-          >
-            {fetcher.state !== "idle" ? "Saving..." : "Save"}
-            </button> */}
             <Button type="submit">{fetcher.state !== "idle" ? "Saving..." : "Save"}</Button>
-        </div>
+              </div>
+            </CardFooter>
       </fieldset>
-      </fetcher.Form>
-      </div>
+        </fetcher.Form>
+      </Card>
   );
 }

@@ -51,34 +51,36 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <div className="p-10">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-4xl text-white">work journal</h1>
-              <p className="mt-3 text-xl text-gray-400">
-                 Doings and learnings.
-              </p>
-            </div>
-            <div className="flex justify-center items-center space-x-3">
-              {session.isAdmin ? (
-                <Form method="post">
-                  <Button>Logout</Button>
-                </Form>
-              ) : (
-                <Link to="/login">Login</Link>
-              )}
-              <DarkModeToggle />
-            </div>
-          </div>
-        <Outlet />
-        </div>
+        <body className="antialiased mb-10 lg:mx-auto">
+          <main className="container relative mx-auto mt-8 overflow-auto print:p-12">
+            <div className="mx-auto w-full max-w-2xl space-y-8 print:space-y-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h1 className="text-4xl">work journal</h1>
+                    <p className="mt-3 text-xl">
+                      Doings and learnings.
+                    </p>
+                  </div>
+                  <div className="flex justify-center items-center space-x-3">
+                    {session.isAdmin ? (
+                      <Form method="post">
+                        <Button>Logout</Button>
+                      </Form>
+                    ) : (
+                      <Link to="/login">Login</Link>
+                    )}
+                    <DarkModeToggle />
+                  </div>
+                </div>
+                <Outlet />
+              </div>
+          </main>
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </body>
         </ThemeProvider>
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-      </body>
     </html>
   );
 }

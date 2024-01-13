@@ -18,23 +18,26 @@ export async function action({ request }: ActionFunctionArgs) {
 
   let formData = await request.formData();
   console.log(formData);
-  let { date, type, text } = Object.fromEntries(formData);
+  let { date, type, text, link } = Object.fromEntries(formData);
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   if (
     typeof date !== "string" ||
     typeof type !== "string" ||
-    typeof text !== "string"
+    typeof text !== "string" ||
+    typeof link !== "string"
   ) {
     throw new Error("Bad request");
   }
 
+  // return 123
   return db.entry.create({
     data: {
       date: new Date(date),
       type: type,
       text: text,
+      link: link,
     },
   });
 }
@@ -87,14 +90,13 @@ export default function Index() {
     <div>
       {session.isAdmin && (
         <div className="my-8 p-3">
-          <p className="italic">Create a new entry</p>
 
           <EntryForm />
         </div>
       )}
 
       <div className="mt-12 space-y-12">
-        {weeks.map((week) => (
+        {weeks.reverse().map((week) => (
           <div key={week.dateString}>
             <p className="font-bold">
               Week of {format(parseISO(week.dateString), "MMMM do")}
@@ -144,10 +146,12 @@ function EntryListItem({
 }: {
     entry: Awaited<ReturnType<typeof loader>>["entries"][number];
     canEdit: boolean;
-}) {
+  }) {
+  
   return (
     <li className="group">
       {entry.text}
+      {entry.link ? (<a href={entry.link} className="hover:underline" target="_blank" rel="noreferrer">&nbsp;- {entry.link}</a>) : null}
 
       {canEdit && (
         <Link
