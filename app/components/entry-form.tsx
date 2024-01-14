@@ -56,7 +56,7 @@ export function EntryForm({
               type="date"
               name="date"
               required
-              className=""
+              className="p-1 rounded-md"
               defaultValue={entry?.date ?? format(new Date(), "yyyy-MM-dd")}
             /> 
           </div>

@@ -73,7 +73,7 @@ module.exports = {
       },
     },
     fontFamily: {
-      sans: ["Inter var"],
+      sans: ["Geist var"],
     },
   },
   plugins: [require("tailwindcss-animate")],

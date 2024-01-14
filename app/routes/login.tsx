@@ -2,6 +2,8 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { commitSession, getSession } from "~/session";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
 
 export async function action({ request }: ActionFunctionArgs) {
   let formData = await request.formData();
@@ -47,24 +49,22 @@ export default function LoginPage() {
         <p>You're signed in!</p>
       ) : (
         <Form method="post">
-          <input
-            className="text-gray-900"
+          <Input
             type="email"
             name="email"
             placeholder="Email"
             required
+            className="mb-4"
           />
-          <input
-            className="text-gray-900"
+          <Input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="Paswword"
             required
+            className="mb-4"
           />
-          <button className="bg-blue-500 px-3 py-2 font-medium text-white">
-            Log in
-          </button>
-            
+    
+          <Button>Log in</Button>           
          {actionData?.error && (
             <p className="mt-4 font-medium text-red-500">{actionData.error}</p>
           )}

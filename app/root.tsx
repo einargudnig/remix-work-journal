@@ -21,7 +21,8 @@ import { Button } from "./components/ui/button";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
-  { rel: "stylesheet", href: "fonts/web/inter.css" },
+  // { rel: "stylesheet", href: "fonts/web/inter.css" },
+  { rel: "stylesheet", href: "fonts/web/geist.css" },
 ];
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -62,13 +63,15 @@ export default function App() {
                       Doings, learnings & interesting things.
                     </p>
                   </div>
-                  <div className="flex justify-center items-center space-x-3">
+                  <div className="flex justify-center items-center space-x-2">
                     {session.isAdmin ? (
                       <Form method="post">
                         <Button>Logout</Button>
                       </Form>
-                    ) : (
-                      <Link to="/login">Login</Link>
+                  ) : (
+                      <Button>
+                        <Link to="/login">Login</Link>
+                      </Button>
                     )}
                     <DarkModeToggle />
                   </div>
