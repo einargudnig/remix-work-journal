@@ -19,7 +19,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   let db = new PrismaClient();
 
   let formData = await request.formData();
-  let { _action, date, type, text } = Object.fromEntries(formData);
+  let { _action, date, type, text, link } = Object.fromEntries(formData);
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -36,7 +36,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (
       typeof date !== "string" ||
       typeof type !== "string" ||
-      typeof text !== "string"
+      typeof text !== "string" ||
+      typeof link !== "string"
     ) {
       throw new Error("Bad request");
     }
@@ -94,7 +95,6 @@ export default function EditPage() {
   return (
     <div className="mx-auto max-w-7xl p-6">
 
-      <p>Editing entry {entry.id}!</p>
       <EntryForm entry={entry} />
       <div>
         <Form method="post" onSubmit={handleSubmit}>

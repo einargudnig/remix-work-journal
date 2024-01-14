@@ -59,7 +59,7 @@ export default function App() {
                   <div>
                     <h1 className="text-4xl">work journal</h1>
                     <p className="mt-3 text-xl">
-                      Doings and learnings.
+                      Doings, learnings & interesting things.
                     </p>
                   </div>
                   <div className="flex justify-center items-center space-x-3">

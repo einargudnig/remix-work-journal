@@ -4,6 +4,8 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { format, parseISO, startOfWeek } from "date-fns";
 import { EntryForm } from "~/components/entry-form";
 import { getSession } from "~/session";
+import { TriangleRightIcon, FrameIcon } from "@radix-ui/react-icons";
+import { Badge } from "~/components/ui/badge";
 
 export async function action({ request }: ActionFunctionArgs) {
   let session = await getSession(request.headers.get("cookie"));
@@ -96,16 +98,22 @@ export default function Index() {
       )}
 
       <div className="mt-12 space-y-12">
-        {weeks.reverse().map((week) => (
-          <div key={week.dateString}>
-            <p className="font-bold">
-              Week of {format(parseISO(week.dateString), "MMMM do")}
-            </p>
-            <div className="mt-3 space-y-4">
+        {weeks.reverse().map((week, weekIdx) => (
+          <div key={week.dateString} className="relative">
+            <div className="-ml-0.5 flex itemx-center">
+              <FrameIcon className="h-5 w-5 mr-2 text-muted-foreground" />
+              <h2 className="font-bold">
+                Week of {format(parseISO(week.dateString), "MMMM do")}
+              </h2>
+            </div>
+            {weekIdx !== weeks.length - 1 ? (
+                <span className="absolute left-2 top-7 -ml-px h-full w-0.5 bg-muted-foreground" aria-hidden="true" />
+              ) : null}
+            <div className="ml-10 mt-3 space-y-4">
               {week.work.length > 0 && (
                 <div>
-                  <p>Work</p>
-                  <ul className="ml-8 list-disc">
+                  <h3 className="font-semibold">Work</h3>
+                  <ul className="ml-1 list-disc">
                     {week.work.map((entry) => (
                       <EntryListItem key={entry.id} entry={entry} canEdit={session.isAdmin} />
                     ))}
@@ -114,8 +122,8 @@ export default function Index() {
               )}
               {week.learnings.length > 0 && (
                 <div>
-                  <p>Learning</p>
-                  <ul className="ml-8 list-disc">
+                  <h3 className="font-semibold">Learning</h3>
+                  <ul className="ml-1 list-disc">
                     {week.learnings.map((entry) => (
                       <EntryListItem key={entry.id} entry={entry} canEdit={session.isAdmin} />
                     ))}
@@ -124,8 +132,8 @@ export default function Index() {
               )}
               {week.interestingThings.length > 0 && (
                 <div>
-                  <p>Interesting things</p>
-                  <ul className="ml-8 list-disc">
+                  <h3 className="font-semibold">Interesting things</h3>
+                  <ul className="ml-1 list-disc">
                     {week.interestingThings.map((entry) => (
                       <EntryListItem key={entry.id} entry={entry} canEdit={session.isAdmin} />
                     ))}
@@ -149,19 +157,24 @@ function EntryListItem({
   }) {
   
   return (
-    <li className="group">
-      {entry.text}
-      {entry.link ? (<a href={entry.link} className="hover:underline" target="_blank" rel="noreferrer">&nbsp;- {entry.link}</a>) : null}
+    <li className="flex items-center">
+      <TriangleRightIcon className="h-5 w-5" />
+      <span className="group">
+        {entry.text}
+        {entry.link ? (
+          <Badge variant="secondary" className="ml-3"><a href={entry.link} className="hover:underline" target="_blank" rel="noreferrer">{entry.link}</a></Badge>
+        ) : null}
+        
 
-      {canEdit && (
-        <Link
-        to={`/entries/${entry.id}/edit`}
-        className="ml-2 text-blue-500 opacity-0 group-hover:opacity-100"
-      >
-        Edit
-      </Link>
-      )}
-      
+        {canEdit && (
+          <Link
+          to={`/entries/${entry.id}/edit`}
+          className="ml-2 text-blue-500 opacity-0 group-hover:opacity-100"
+        >
+          Edit
+        </Link>
+        )}    
+      </span>
     </li>
   );
 }
