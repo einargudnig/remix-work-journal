@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:1
 
-# Adjust BUN_VERSION as desired
-ARG BUN_VERSION=1.0.0
-FROM oven/bun as base
+# Adjust NODE_VERSION as desired
+ARG NODE_VERSION=21.2.0
+FROM node:${NODE_VERSION}-slim as base
 
 LABEL fly_launch_runtime="Remix/Prisma"
 
@@ -21,8 +21,8 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp openssl pkg-config python-is-python3
 
 # Install node modules
-COPY --link bun.lockb package-lock.json package.json ./
-RUN bun install
+COPY --link package-lock.json package.json ./
+RUN npm ci --include=dev
 
 # Generate Prisma Client
 COPY --link prisma .
@@ -32,11 +32,10 @@ RUN npx prisma generate
 COPY --link . .
 
 # Build application
-RUN bun run build
+RUN npm run build
 
 # Remove development dependencies
-RUN rm -rf node_modules && \
-    bun install --ci
+RUN npm prune --omit=dev
 
 
 # Final stage for app image
@@ -63,4 +62,4 @@ ENTRYPOINT [ "/app/docker-entrypoint.js" ]
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
 ENV DATABASE_URL="file:///data/sqlite.db"
-CMD [ "bun", "run", "start" ]
+CMD [ "npm", "run", "start" ]
