@@ -72,7 +72,7 @@ export default function Index() {
 
       return memo;
     },
-    {}
+    {},
   );
 
   let weeks = Object.keys(entriesByWeek)
@@ -81,10 +81,10 @@ export default function Index() {
       dateString,
       work: entriesByWeek[dateString].filter((entry) => entry.type === "work"),
       learnings: entriesByWeek[dateString].filter(
-        (entry) => entry.type === "learning"
+        (entry) => entry.type === "learning",
       ),
       interestingThings: entriesByWeek[dateString].filter(
-        (entry) => entry.type === "interesting-thing"
+        (entry) => entry.type === "interesting-thing",
       ),
     }));
 
@@ -92,7 +92,6 @@ export default function Index() {
     <div>
       {session.isAdmin && (
         <div className="my-8 p-3">
-
           <EntryForm />
         </div>
       )}
@@ -100,22 +99,29 @@ export default function Index() {
       <div className="mt-12 space-y-12">
         {weeks.reverse().map((week, weekIdx) => (
           <div key={week.dateString} className="relative">
-            <div className="-ml-0.5 flex itemx-center">
-              <FrameIcon className="h-5 w-5 mr-2 text-muted-foreground" />
+            <div className="itemx-center -ml-0.5 flex">
+              <FrameIcon className="text-muted-foreground mr-2 h-5 w-5" />
               <h2 className="font-bold">
                 Week of {format(parseISO(week.dateString), "MMMM do")}
               </h2>
             </div>
             {weekIdx !== weeks.length - 1 ? (
-                <span className="absolute left-2 top-7 -ml-px h-full w-0.5 bg-muted-foreground" aria-hidden="true" />
-              ) : null}
+              <span
+                className="bg-muted-foreground absolute left-2 top-7 -ml-px h-full w-0.5"
+                aria-hidden="true"
+              />
+            ) : null}
             <div className="ml-10 mt-3 space-y-4">
               {week.work.length > 0 && (
                 <div>
                   <h3 className="font-semibold">Work</h3>
                   <ul className="ml-1 list-disc">
                     {week.work.map((entry) => (
-                      <EntryListItem key={entry.id} entry={entry} canEdit={session.isAdmin} />
+                      <EntryListItem
+                        key={entry.id}
+                        entry={entry}
+                        canEdit={session.isAdmin}
+                      />
                     ))}
                   </ul>
                 </div>
@@ -125,7 +131,11 @@ export default function Index() {
                   <h3 className="font-semibold">Learning</h3>
                   <ul className="ml-1 list-disc">
                     {week.learnings.map((entry) => (
-                      <EntryListItem key={entry.id} entry={entry} canEdit={session.isAdmin} />
+                      <EntryListItem
+                        key={entry.id}
+                        entry={entry}
+                        canEdit={session.isAdmin}
+                      />
                     ))}
                   </ul>
                 </div>
@@ -135,7 +145,11 @@ export default function Index() {
                   <h3 className="font-semibold">Interesting things</h3>
                   <ul className="ml-1 list-disc">
                     {week.interestingThings.map((entry) => (
-                      <EntryListItem key={entry.id} entry={entry} canEdit={session.isAdmin} />
+                      <EntryListItem
+                        key={entry.id}
+                        entry={entry}
+                        canEdit={session.isAdmin}
+                      />
                     ))}
                   </ul>
                 </div>
@@ -150,30 +164,37 @@ export default function Index() {
 
 function EntryListItem({
   entry,
-  canEdit
+  canEdit,
 }: {
-    entry: Awaited<ReturnType<typeof loader>>["entries"][number];
-    canEdit: boolean;
-  }) {
-  
+  entry: Awaited<ReturnType<typeof loader>>["entries"][number];
+  canEdit: boolean;
+}) {
   return (
     <li className="flex items-center">
       <TriangleRightIcon className="h-5 w-5" />
       <span className="group">
         {entry.text}
         {entry.link ? (
-          <Badge variant="secondary" className="ml-3"><a href={entry.link} className="hover:underline" target="_blank" rel="noreferrer">{entry.link}</a></Badge>
+          <Badge variant="secondary" className="ml-3">
+            <a
+              href={entry.link}
+              className="hover:underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Link to source
+            </a>
+          </Badge>
         ) : null}
-        
 
         {canEdit && (
           <Link
-          to={`/entries/${entry.id}/edit`}
-          className="ml-2 text-blue-500 opacity-0 group-hover:opacity-100"
-        >
-          Edit
-        </Link>
-        )}    
+            to={`/entries/${entry.id}/edit`}
+            className="ml-2 text-blue-500 opacity-0 group-hover:opacity-100"
+          >
+            Edit
+          </Link>
+        )}
       </span>
     </li>
   );
