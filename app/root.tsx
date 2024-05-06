@@ -1,5 +1,6 @@
 import stylesheet from "~/tailwind.css";
-import { redirect} from "@remix-run/node";
+import { redirect } from "@remix-run/node";
+import { BGGrid } from "./components/ui/bg-grid";
 import type { LoaderFunctionArgs, ActionFunctionArgs, LinksFunction } from "@remix-run/node";
 import {
   Form,
@@ -52,8 +53,9 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <body className="antialiased mb-10 lg:mx-auto">
+        <BGGrid>
           <main className="container relative mx-auto mt-8 overflow-auto print:p-12">
             <div className="mx-auto w-full max-w-2xl space-y-8 print:space-y-6">
                 <div className="flex justify-between items-start">
@@ -82,7 +84,8 @@ export default function App() {
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
-        </body>
+          </BGGrid>
+          </body>
         </ThemeProvider>
     </html>
   );

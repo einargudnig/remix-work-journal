@@ -99,7 +99,7 @@ export default function Index() {
       <div className="mt-12 space-y-12">
         {weeks.reverse().map((week, weekIdx) => (
           <div key={week.dateString} className="relative">
-            <div className="itemx-center -ml-0.5 flex">
+            <div className="item-center -ml-0.5 flex">
               <FrameIcon className="text-muted-foreground mr-2 h-5 w-5" />
               <h2 className="font-bold">
                 Week of {format(parseISO(week.dateString), "MMMM do")}
